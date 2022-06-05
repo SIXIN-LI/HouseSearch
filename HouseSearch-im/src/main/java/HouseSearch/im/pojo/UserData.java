@@ -1,5 +1,8 @@
 package HouseSearch.im.pojo;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class UserData {
     public static final Map<Long,User> USER_MAP = new HashMap<>();
 

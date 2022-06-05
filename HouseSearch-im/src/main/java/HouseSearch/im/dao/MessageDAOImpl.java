@@ -13,6 +13,7 @@ import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -39,8 +40,8 @@ public class MessageDAOImpl implements MessageDAO{
         );
 
         Criteria criteriaTo = new Criteria().andOperator(
-            Criteria.where("to.id").is(toId),
-            Criteria.where("from.id").is(fromId)
+            Criteria.where("from.id").is(toId),
+            Criteria.where("to.id").is(fromId)
         );
 
         Criteria criteria = new Criteria().orOperator(criteriaFrom, criteriaTo);
@@ -59,22 +60,32 @@ public class MessageDAOImpl implements MessageDAO{
      */
     @Override
     public Message findMessageById(String id) {
-        return null;
+        return this.mongoTemplate.findById(new ObjectId(id), Message.class);
     }
 
     /**
      * Update message status
      *
      * @param id
-     * @param status * @return
+     * @param status
+     * @return update result
      */
     @Override
     public UpdateResult updateMessageState(ObjectId id, Integer status) {
-        return null;
+        Query query = new Query(Criteria.where("id").is(id));
+
+        Update update = Update.update("status", status);
+        // Make this message unread?
+        if (status.intValue() == 1) {
+            update.set("send_date", new Date());
+        } else {
+            update.set("read_date", new Date());
+        }
+        return this.mongoTemplate.updateFirst(query, update, Message.class);
     }
 
     /**
-     * Add messages * * @param message * @return
+     * Add messages
      *
      * @param message
      */
@@ -86,12 +97,13 @@ public class MessageDAOImpl implements MessageDAO{
     }
 
     /**
-     * * Delete message by id * @param id * @return
+     * * Delete message by id
      *
      * @param id
      */
     @Override
     public DeleteResult deleteMessage(String id) {
-        return null;
+        Query query = Query.query(Criteria.where("id").is(id));
+        return this.mongoTemplate.remove(query, Message.class);
     }
 }
