@@ -30,7 +30,7 @@ public interface MessageDAO {
      * Update message status
      *
      * @param id
-     * @param status * @return
+     * @param status
      */
     UpdateResult updateMessageState(ObjectId id, Integer status);
 
